@@ -15,7 +15,7 @@ git-wfd-eureka:
     repo_url: "https://github.com/jesusmah/eureka-ic-clone"
     type: link
     has_issues: false
-#
+
 #git-wfd-config-server:
 #  service_id: githubpublic
 #  parameters:
@@ -115,7 +115,7 @@ pipeline-wfd-eureka:
       execute: false
     services: ["git-wfd-eureka"]
   hidden: [form, description]
-#
+
 #pipeline-wfd-config:
 #  service_id: pipeline
 #  parameters:
