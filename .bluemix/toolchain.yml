@@ -97,7 +97,6 @@ pipeline-wfd-eureka:
        MAX_INSTANCES: "2"
        DESIRED_INSTANCES: "1"
        CONCURRENT_VERSIONS: "1"
-       #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
        IGNORE_MAPPING_ROUTE: "yes"
        SERVICE_DISCOVERY_UPS: "eureka-service-discovery"
