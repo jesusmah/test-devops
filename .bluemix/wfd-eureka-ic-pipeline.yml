@@ -257,10 +257,11 @@ stages:
         ${EXT_DIR}/print_help.sh
         exit $RESULT
       fi
-      echo -e "${green}Execution complete${no_label}"
 
       export NAME="${CONTAINER_NAME}_${BUILD_NUMBER}"
       echo "Value of NAME: ${NAME}"
+
+      echo -e "${green}Execution complete${no_color}"
 
       echo -e "${label_color}# ----------------------------- #${no_color}"
       echo -e "${label_color}# [END]: Deploy Container Group #${no_color}"
@@ -308,7 +309,61 @@ stages:
       echo -e "${label_color}# [END]: Deploy Bridge App #${no_color}"
       echo -e "${label_color}# ------------------------ #${no_color}"
 
-      echo -e "${red}[IMPORTANT]: A new version of the Eureka Service has been deployed. Please, make sure your existing microservices are updated in order to use this new Eureka Server.${no_color}"
+      echo -e "${label_color}# ------------------------------- #${no_color}"
+      echo -e "${label_color}# [BEGIN]: Updating microservices #${no_color}"
+      echo -e "${label_color}# ------------------------------- #${no_color}"
+
+      # ------------------ Python spcripts --------------------- #
+      export PYTHONPATH=$EXT_DIR/utilities/:$PYTHONPATH
+
+      export BEARER_TOKEN=`python - <<CODE
+        import python_utils
+        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+        print(str(BEARER_TOKEN))
+      CODE`
+      export SPACE_ID=`python - <<CODE
+        import python_utils
+        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+        print(str(SPACE_GUID))
+      CODE`
+      # --------------------------------------------------------- #
+
+      # Location of the new Eureka Server
+      NEW_EUREKA_LOCATION="http://${EUREKA_CONTAINER_GR_IP}:${PORT}/eureka/"
+
+      # For each microservice, we need to update their VCAP_SERVICES so that they point to the new Eureka Server
+      for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v ${APP_NAME} | sed 's/    .*$//g' | sed 's/^.*  //g'`
+      do
+        echo "[INFO]: Updating Eureka url for microservice: $MICROSERVICE"
+
+        MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
+        #echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
+
+        OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
+        #echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
+
+        #echo -e "${red}Eureka location: $NEW_EUREKA_LOCATION ${no_color}"
+        NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@http.*eureka\/@${NEW_EUREKA_LOCATION}@g"`
+        echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
+
+        RESULT=`curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                     --header "Content-Type: application/json" \
+                     --header "Accept: application/json" \
+                     --header "X-Auth-Token: ${BEARER_TOKEN}" \
+                     --header "X-Auth-Project-Id: ${SPACE_ID}" \
+                     -d "{\"Environment\":[\"VCAP_SERVICES=${NEW_VCAP_SERVICES}\"],\"NumberInstances\": {}}" \
+                     "https://containers-api.ng.bluemix.net/v3/containers/groups/${MICROSERVICE}"`
+
+        if [ $RESULT -ge 400 ]; then
+            echo -e "${red}Result of curl: $RESULT ${no_color}"
+        else
+            echo -e "${green}Result of curl: $RESULT ${no_color}"
+        fi
+      done
+
+      echo -e "${label_color}# ----------------------------- #${no_color}"
+      echo -e "${label_color}# [END]: Updating microservices #${no_color}"
+      echo -e "${label_color}# ----------------------------- #${no_color}"
   - name: Active Deploy - Begin
     type: deployer
     extension_id: ibm.devops.services.pipeline.devops.ad_start

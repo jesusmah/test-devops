@@ -108,8 +108,8 @@ pipeline-wfd-eureka:
        GROUP_SIZE: "1"
        DEBUG: null
        GIT_HOME: "{{deploy.parameters.git-home}}"
-       #RAMPDOWN_DURATION: "1s"
-       #RAMPUP_DURATION: "1s"
+       RAMPDOWN_DURATION: "1s"
+       RAMPUP_DURATION: "1s"
        UNIQUE_IDENTIFIER: "{{deploy.parameters.unique-identifier}}"
       execute: false
     services: ["git-wfd-eureka"]
