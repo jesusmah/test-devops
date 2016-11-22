@@ -79,7 +79,7 @@ pipeline-wfd-eureka:
     name: "wfd-eureka-{{deploy.parameters.unique-identifier}}"
     ui-pipeline: true
     configuration:
-      content: $file(wfd-eureka-ic-pipeline.yml)
+      content: $file(eureka.yml)
       env:
        # Build java stage env variables
        DOCKER_DIR: "docker"
