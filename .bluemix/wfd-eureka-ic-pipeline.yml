@@ -178,12 +178,6 @@ stages:
   - name: GIT_HOME
     value: ${GIT_HOME}
     type: text
-  - name: RAMPDOWN_DURATION
-    value: ${RAMPDOWN_DURATION}
-    type: text
-  - name: RAMPUP_DURATION
-    value: ${RAMPUP_DURATION}
-    type: text
   - name: SERVICE_DISCOVERY_UPS
     value: ${SERVICE_DISCOVERY_UPS}
     type: text
