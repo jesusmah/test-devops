@@ -301,7 +301,7 @@ stages:
           touch empty_file.txt
           cf push ${BRIDGE_APP} -p . -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
           cf bind-service ${BRIDGE_APP} ${SERVICE_DISCOVERY_UPS}
-	      fi
+      fi
       fi
 
       echo -e "${label_color}# ------------------------ #${no_color}"
