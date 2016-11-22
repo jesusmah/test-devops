@@ -150,9 +150,6 @@ stages:
   - name: BRIDGE_APP
     value: ${BRIDGE_APP}
     type: text
-  - name: BIND_TO
-    value: ${BRIDGE_APP}
-    type: text
   - name: REGION
     value: ${REGION}
     type: text

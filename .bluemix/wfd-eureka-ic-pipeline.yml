@@ -160,12 +160,6 @@ stages:
   - name: IGNORE_MAPPING_ROUTE
     value: ${IGNORE_MAPPING_ROUTE}
     type: text
-  - name: BRIDGE_APP
-    value: ${BRIDGE_APP}
-    type: text
-  - name: BIND_TO
-    value: ${BRIDGE_APP}
-    type: text
   - name: ROUTE_DOMAIN
     value: ${ROUTE_DOMAIN}
     type: text
@@ -195,6 +189,12 @@ stages:
     type: text
   - name: UNIQUE_IDENTIFIER
     value: ${UNIQUE_IDENTIFIER}
+    type: text
+  - name: BRIDGE_APP
+    value: ${BRIDGE_APP}
+    type: text
+  - name: APP_NAME
+    value: ${NAME}
     type: text
   jobs:
   - name: Deploy Container Group
@@ -314,26 +314,4 @@ stages:
       echo -e "${label_color}# [END]: Deploy Bridge App #${no_color}"
       echo -e "${label_color}# ------------------------ #${no_color}"
 
-      echo -e "${label_color}# ------------------------------- #${no_color}"
-      echo -e "${label_color}# [BEGIN]: Updating microservices #${no_color}"
-      echo -e "${label_color}# ------------------------------- #${no_color}"
-
-      for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | sed 's/    .*$//g' | sed 's/^.*  //g'`
-      do
-        echo "[INFO]: Updating Eureka url for microservice: $MICROSERVICE"
-
-        MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
-        echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
-
-        OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
-        echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
-
-        NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed 's@http.*eureka/@http://$EUREKA_CONTAINER_GR_IP:$PORT/eureka/@g'`
-        echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
-
-        cf ic group update -e "VCAP_SERVICES=$NEW_VCAP_SERVICES" $MICROSERVICE
-      done
-
-      echo -e "${label_color}# ----------------------------- #${no_color}"
-      echo -e "${label_color}# [END]: Updating microservices #${no_color}"
-      echo -e "${label_color}# ----------------------------- #${no_color}"
+      echo -e "${red}[IMPORTANT]: A new version of the Eureka Service has been deployed. Please, make sure your existing microservices are updated in order to use this new Eureka Server.${no_color}"
