@@ -309,3 +309,77 @@ stages:
       echo -e "${label_color}# ------------------------ #${no_color}"
 
       echo -e "${red}[IMPORTANT]: A new version of the Eureka Service has been deployed. Please, make sure your existing microservices are updated in order to use this new Eureka Server.${no_color}"
+  - name: Active Deploy - Begin
+    type: deployer
+    extension_id: ibm.devops.services.pipeline.devops.ad_start
+    target:
+      region_id: ${REGION}
+      organization: ${ORG}
+      space: ${SPACE}
+    DEPLOYMENT_METHOD: Red Black
+    RAMPDOWN_DURATION: ${RAMPDOWN_DURATION}
+    RAMPUP_DURATION: ${RAMPUP_DURATION}
+    COMMAND: |-
+      #!/bin/bash
+      #
+      # The following code uses the Active Deploy service to update your new application with zero downtime.
+      # The code used is available at https://github.com/Osthanes/update_service
+      # and https://github.com/Osthanes/activedeploy_common.
+      #
+      # For details about how to set up the Active Deploy extension for the Delivery Pipeline, see
+      # https://console.ng.bluemix.net/docs/services/ActiveDeploy/updatingapps.html#adpipeline.
+      #
+      # Feel free to fork the code. After creating your fork, define the environment variable GIT_HOME to use the forked repositories with the
+      # format https://github.com/${GIT_HOME}/update_service and https://github.com/${GIT_HOME}/activedeploy_common.
+      #
+      # Make sure the following variables are defined as environment properties with no values:
+      # NAME: The name of your new application. This variable has to be exported in the first deploy job.
+      # TEST_RESULT_FOR_AD: Passes the results of the test phase to the Active Deploy - Complete job. Set this variable in the test job.
+      #
+      # The following variables may be defined as environment properties:
+      # GROUP_SIZE: The number of instances that are created during initial deployment. The default value is 1.
+      # CONCURRENT_VERSIONS: The number of application versions to keep at the end of deployment. The default value is 2.
+      # AD_INSTANCE_NAME: The name for Active Deploy Instance, if it does not yet exist. The default value is activedeploy-for-pipeline.
+
+      source ${EXT_DIR}/git_util.sh
+      git_retry clone https://github.com/${GIT_HOME}/update_service.git activedeploy
+      activedeploy/activedeploy_step_1.sh
+  - name: Test
+    type: tester
+    fail_stage: false
+    script: |-
+      #!/bin/bash
+      # invoke tests here
+
+      # -------------- #
+      # Set debug mode #
+      # -------------- #
+      if [[ -n ${DEBUG} ]]; then set -x ; fi
+
+      export TEST_RESULT_FOR_AD=0
+
+      echo "No test carried out"
+  - name: Active Deploy - Complete
+    type: deployer
+    extension_id: ibm.devops.services.pipeline.devops.ad_finish
+    target:
+      region_id: ${REGION}
+      organization: ${ORG}
+      space: ${SPACE}
+    COMMAND: |-
+      #!/bin/bash
+      #
+      # The following code uses the Active Deploy service to update your new application with zero downtime.
+      # The code used is available at https://github.com/Osthanes/update_service
+      # and https://github.com/Osthanes/activedeploy_common.
+      #
+      # For details about how to set up the Active Deploy extension for the Delivery Pipeline, see
+      # https://console.ng.bluemix.net/docs/services/ActiveDeploy/updatingapps.html#adpipeline.
+      #
+      # Feel free to fork the code. After creating your fork, define the environment variable GIT_HOME to use the forked repositories with the
+      # format https://github.com/${GIT_HOME}/update_service and https://github.com/${GIT_HOME}/activedeploy_common.
+      #
+
+      source ${EXT_DIR}/git_util.sh
+      git_retry clone https://github.com/${GIT_HOME}/update_service.git activedeploy
+      activedeploy/activedeploy_step_2.sh
