@@ -34,7 +34,6 @@ stages:
   - type: job
     stage: Build Java Projects
     job: Build Java
-    dir_name: null
   triggers:
   - type: stage
   properties:
@@ -123,10 +122,24 @@ stages:
   - type: job
     stage: Build Docker Image
     job: Build container
-    dir_name: null
   triggers:
   - type: stage
   properties:
+  - name: REGION
+    value: ${REGION}
+    type: text
+  - name: ORG
+    value: ${ORG}
+    type: text
+  - name: SPACE
+    value: ${SPACE}
+    type: text
+  - name: NAME
+    value: ${NAME}
+    type: text
+  - name: PORT
+    value: ${PORT}
+    type: text
   - name: MIN_INSTANCES
     value: ${MIN_INSTANCES}
     type: text
@@ -148,27 +161,6 @@ stages:
   - name: IGNORE_MAPPING_ROUTE
     value: ${IGNORE_MAPPING_ROUTE}
     type: text
-  - name: BRIDGE_APP
-    value: ${BRIDGE_APP}
-    type: text
-  - name: BIND_TO
-    value: ${BRIDGE_APP}
-    type: text
-  - name: REGION
-    value: ${REGION}
-    type: text
-  - name: ORG
-    value: ${ORG}
-    type: text
-  - name: SPACE
-    value: ${SPACE}
-    type: text
-  - name: NAME
-    value: ${NAME}
-    type: text
-  - name: PORT
-    value: ${PORT}
-    type: text
   - name: ROUTE_DOMAIN
     value: ${ROUTE_DOMAIN}
     type: text
@@ -187,23 +179,17 @@ stages:
   - name: GIT_HOME
     value: ${GIT_HOME}
     type: text
-  - name: RAMPDOWN_DURATION
-    value: ${RAMPDOWN_DURATION}
-    type: text
-  - name: RAMPUP_DURATION
-    value: ${RAMPUP_DURATION}
-    type: text
   - name: SERVICE_DISCOVERY_UPS
     value: ${SERVICE_DISCOVERY_UPS}
     type: text
-  - name: CS_CONTAINER_GR_ID
-    value: null
-    type: text
-  - name: CS_CONTAINER_GR_IP
-    value: null
-    type: text
   - name: UNIQUE_IDENTIFIER
     value: ${UNIQUE_IDENTIFIER}
+    type: text
+  - name: BRIDGE_APP
+    value: ${BRIDGE_APP}
+    type: text
+  - name: APP_NAME
+    value: ${NAME}
     type: text
   - name: CONFIG_SERVER_UPS
     value: ${CONFIG_SERVER_UPS}
@@ -231,130 +217,160 @@ stages:
       echo -e "${label_color}# [BEGIN]: Deploy Container Group #${no_color}"
       echo -e "${label_color}# ------------------------------- #${no_color}"
 
-       # The following are some example deployment scripts.  Use these as is or fork them and include your updates here:
-       echo -e "${label_color}Starting deployment script${no_color}"
-       # To view/fork this script goto: https://github.com/Osthanes/deployscripts
-       # git_retry will retry git calls to prevent pipeline failure on temporary github problems
-       # the code can be found in git_util.sh at https://github.com/Osthanes/container_deployer
-       git_retry clone https://github.com/Osthanes/deployscripts.git deployscripts
+      # The following are some example deployment scripts.  Use these as is or fork them and include your updates here:
+      echo -e "${label_color}Starting deployment script${no_color}"
+      # To view/fork this script goto: https://github.com/Osthanes/deployscripts
+      # git_retry will retry git calls to prevent pipeline failure on temporary github problems
+      # the code can be found in git_util.sh at https://github.com/Osthanes/container_deployer
+      git_retry clone https://github.com/Osthanes/deployscripts.git deployscripts
 
-       # Deploy Container Group:
-       # Optional environment properties (can be set directly in this script, or defined as environment properties):
-       #      NAME              Value         Description
-       #   =============      =========     ==============
-       #   ROUTE_HOSTNAME      String       Specify the Hostname for the Cloud Foundry Route you wish to assign to this container group.  By default this is not set.
-       #   ROUTE_DOMAIN        String       Specify domain name for the Cloud Foundry Route you wish to assign to this container group.  By default this is not set.
-       #   BIND_TO             String       Specify a Bluemix application name that whose bound services you wish to make available to the container.  By default this is not set.
-       #   DESIRED_INSTANCES:  Number       Specify the number of instances in the group.  Default value is 1.
-       #   AUTO_RECOVERY:      Boolean      Set auto-recovery to true/false.  Default value is false.
-       #                                    Default is false.
-       #   CONTAINER_SIZE      String       Specify container size: pico (64), nano (128), micro (256), tiny (512), small (1024), medium (2048),
-       #                                                            large (4096), x-large (8192), 2x-large (16384).
-       #                                    Default is micro (256).
-       #   CONCURRENT_VERSIONS Number       Number of versions of this group to leave active.
-       #                                    Default is 1
-       # IF YOU WANT CONTAINER GROUPS .. uncomment the next line, and comment out the previous deployment line (/bin/bash deployscripts/deploygroup.sh)
-       /bin/bash deployscripts/deploygroup.sh
-       RESULT=$?
-       # source the deploy property file
-       if [ -f "${DEPLOY_PROPERTY_FILE}" ]; then
-         source "$DEPLOY_PROPERTY_FILE"
-       fi
-       #########################
-       # Environment DETAILS   #
-       #########################
-       # The environment has been setup.
-       # The Cloud Foundry CLI (cf), IBM Container Service CLI (ice), Git client (git), IDS Inventory CLI (ids-inv) and Python 2.7.3 (python) have been installed.
-       # Based on the organization and space selected in the Job credentials are in place for both IBM Container Service and IBM Bluemix
-       # The following colors have been defined to help with presentation of logs: green, red, label_color, no_color.
-       if [ $RESULT -ne 0 ]; then
-           echo -e "${red}Executed failed or had warnings ${no_color}"
-           ${EXT_DIR}/print_help.sh
-           exit $RESULT
-       fi
-       echo -e "${green}Execution complete${no_label}"
+      # Deploy Container Group:
+      # Optional environment properties (can be set directly in this script, or defined as environment properties):
+      #      NAME              Value         Description
+      #   =============      =========     ==============
+      #   ROUTE_HOSTNAME      String       Specify the Hostname for the Cloud Foundry Route you wish to assign to this container group.  By default this is not set.
+      #   ROUTE_DOMAIN        String       Specify domain name for the Cloud Foundry Route you wish to assign to this container group.  By default this is not set.
+      #   BIND_TO             String       Specify a Bluemix application name that whose bound services you wish to make available to the container.  By default this is not set.
+      #   DESIRED_INSTANCES:  Number       Specify the number of instances in the group.  Default value is 1.
+      #   AUTO_RECOVERY:      Boolean      Set auto-recovery to true/false.  Default value is false.
+      #                                    Default is false.
+      #   CONTAINER_SIZE      String       Specify container size: pico (64), nano (128), micro (256), tiny (512), small (1024), medium (2048),
+      #                                                            large (4096), x-large (8192), 2x-large (16384).
+      #                                    Default is micro (256).
+      #   CONCURRENT_VERSIONS Number       Number of versions of this group to leave active.
+      #                                    Default is 1
+      # IF YOU WANT CONTAINER GROUPS .. uncomment the next line, and comment out the previous deployment line (/bin/bash deployscripts/deploygroup.sh)
+      /bin/bash deployscripts/deploygroup.sh
+      RESULT=$?
+      # source the deploy property file
+      if [ -f "${DEPLOY_PROPERTY_FILE}" ]; then
+        source "$DEPLOY_PROPERTY_FILE"
+      fi
+      #########################
+      # Environment DETAILS   #
+      #########################
+      # The environment has been setup.
+      # The Cloud Foundry CLI (cf), IBM Container Service CLI (ice), Git client (git), IDS Inventory CLI (ids-inv) and Python 2.7.3 (python) have been installed.
+      # Based on the organization and space selected in the Job credentials are in place for both IBM Container Service and IBM Bluemix
+      # The following colors have been defined to help with presentation of logs: green, red, label_color, no_color.
+      if [ $RESULT -ne 0 ]; then
+        echo -e "${red}Executed failed or had warnings ${no_color}"
+        ${EXT_DIR}/print_help.sh
+        exit $RESULT
+      fi
+      echo -e "${green}Execution complete${no_label}"
 
-       export NAME="${CONTAINER_NAME}_${BUILD_NUMBER}"
-       echo "Value of NAME: ${NAME}"
+      export NAME="${CONTAINER_NAME}_${BUILD_NUMBER}"
+      echo "Value of NAME: ${NAME}"
 
-       echo -e "${label_color}# ----------------------------- #${no_color}"
-       echo -e "${label_color}# [END]: Deploy Container Group #${no_color}"
-       echo -e "${label_color}# ----------------------------- #${no_color}"
+      echo -e "${label_color}# ----------------------------- #${no_color}"
+      echo -e "${label_color}# [END]: Deploy Container Group #${no_color}"
+      echo -e "${label_color}# ----------------------------- #${no_color}"
 
-       echo -e "${label_color}# -------------------- #${no_color}"
-       echo -e "${label_color}# [BEGIN]: Deploy CUPS #${no_color}"
-       echo -e "${label_color}# -------------------- #${no_color}"
+      echo -e "${label_color}# -------------------- #${no_color}"
+      echo -e "${label_color}# [BEGIN]: Deploy CUPS #${no_color}"
+      echo -e "${label_color}# -------------------- #${no_color}"
 
-       echo "Begining Config Server CUPS deployment"
+      echo "Begining Config Server CUPS deployment"
 
-       CS_CONTAINER_GR_ID=`cf ic group list | grep $NAME | sed 's/ .*$//g'`
-       CS_CONTAINER_GR_IP=cf ic group inspect $CS_CONTAINER_GR_ID | grep private_ip_address | sed 's/.*: "\(.*\)".*$/\1/g'`
+      CS_CONTAINER_GR_ID=`cf ic group list | grep $NAME | sed 's/ .*$//g'`
+      CS_CONTAINER_GR_IP=cf ic group inspect $CS_CONTAINER_GR_ID | grep private_ip_address | sed 's/.*: "\(.*\)".*$/\1/g'`
 
-       echo "Config Server container group ID: $CS_CONTAINER_GR_ID"
-       echo "Config Server container group IP: $CS_CONTAINER_GR_IP"
+      echo "Config Server container group ID: $CS_CONTAINER_GR_ID"
+      echo "Config Server container group IP: $CS_CONTAINER_GR_IP"
 
-       if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS})" ]; then
-         cf create-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}"
-       else
-         cf update-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}";
-       fi
+      if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS})" ]; then
+        cf create-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}"
+      else
+        cf update-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}";
+      fi
 
-       echo -e "${label_color}# ------------------ #${no_color}"
-       echo -e "${label_color}# [END]: Deploy CUPS #${no_color}"
-       echo -e "${label_color}# ------------------ #${no_color}"
+      echo -e "${label_color}# ------------------ #${no_color}"
+      echo -e "${label_color}# [END]: Deploy CUPS #${no_color}"
+      echo -e "${label_color}# ------------------ #${no_color}"
 
-       echo -e "${label_color}# -------------------------- #${no_color}"
-       echo -e "${label_color}# [BEGIN]: Deploy Bridge App #${no_color}"
-       echo -e "${label_color}# -------------------------- #${no_color}"
+      echo -e "${label_color}# -------------------------- #${no_color}"
+      echo -e "${label_color}# [BEGIN]: Deploy Bridge App #${no_color}"
+      echo -e "${label_color}# -------------------------- #${no_color}"
 
-       if [ -z "$(cf apps | grep ${BRIDGE_APP})" ]; then
-          echo "[ERROR]: The container bridge app does not exists."
-          echo "[ERROR]: Please, check the Eureka pipeline."
-         exit 1
-       else
-          echo "[OK]: Bridge App exists"
-         if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS})" ]; then
-            echo "[ERROR]: The Config Server CUPS service has not been found."
-            echo "[ERROR]: Please, check previous step in this pipeline."
-            exit 1
-          else
-            echo "[OK]: Config Server CUPS exists"
-            if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS} | grep ${BRIDGE_APP})" ]; then
+      if [ -z "$(cf apps | grep ${BRIDGE_APP})" ]; then
+        echo "[ERROR]: The container bridge app does not exists."
+        echo "[ERROR]: Please, check the Eureka pipeline."
+        exit 1
+      else
+        echo "[OK]: Bridge App exists"
+        if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS})" ]; then
+          echo "[ERROR]: The Config Server CUPS service has not been found."
+          echo "[ERROR]: Please, check previous step in this pipeline."
+          exit 1
+        else
+          echo "[OK]: Config Server CUPS exists"
+          if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS} | grep ${BRIDGE_APP})" ]; then
             cf bind-service ${BRIDGE_APP} ${CONFIG_SERVER_UPS}
-               echo "[OK]: Config Server and Bridge App bound"
-            else
-               echo "[OK]: Config Server and Bridge App were already bound"
-           fi
+            echo "[OK]: Config Server and Bridge App bound"
+          else
+            echo "[OK]: Config Server and Bridge App were already bound"
           fi
-       fi
+        fi
+      fi
 
-       echo -e "${label_color}# ------------------------ #${no_color}"
-       echo -e "${label_color}# [END]: Deploy Bridge App #${no_color}"
-       echo -e "${label_color}# ------------------------ #${no_color}"
+      echo -e "${label_color}# ------------------------ #${no_color}"
+      echo -e "${label_color}# [END]: Deploy Bridge App #${no_color}"
+      echo -e "${label_color}# ------------------------ #${no_color}"
 
-       echo -e "${label_color}# ------------------------------- #${no_color}"
-       echo -e "${label_color}# [BEGIN]: Updating microservices #${no_color}"
-       echo -e "${label_color}# ------------------------------- #${no_color}"
+      echo -e "${label_color}# ------------------------------- #${no_color}"
+      echo -e "${label_color}# [BEGIN]: Updating microservices #${no_color}"
+      echo -e "${label_color}# ------------------------------- #${no_color}"
 
-       for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | sed 's/    .*$//g' | sed 's/^.*  //g'`
-       do
-         echo "[INFO]: Updating Eureka url for microservice: $MICROSERVICE"
+      # ------------------ Python spcripts --------------------- #
+      export PYTHONPATH=$EXT_DIR/utilities/:$PYTHONPATH
 
-         MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
-         echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
+      export BEARER_TOKEN=`python - <<CODE
+        import python_utils
+        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+        print(str(BEARER_TOKEN))
+      CODE`
+      export SPACE_ID=`python - <<CODE
+        import python_utils
+        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+        print(str(SPACE_GUID))
+      CODE`
+      # --------------------------------------------------------- #
 
-         OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
-         echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
+      # Location of the new Eureka Server
+      NEW_CS_LOCATION="http://${CS_CONTAINER_GR_IP}:${PORT}/"
 
-         NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed 's@\(^.*eureka.*\)http://.*:$PORT@\1http://$CS_CONTAINER_GR_IP:$PORT@g'
-         echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
+      for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | grep -v ${APP_NAME} | sed 's/    .*$//g' | sed 's/^.*  //g'`
+      do
+        echo "[INFO]: Updating Config Server url for microservice: $MICROSERVICE"
 
-         cf ic group update -e "VCAP_SERVICES=$NEW_VCAP_SERVICES" $MICROSERVICE
-       done
+        MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
+        echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
 
-       echo -e "${label_color}# ----------------------------- #${no_color}"
-       echo -e "${label_color}# [END]: Updating microservices #${no_color}"
-       echo -e "${label_color}# ----------------------------- #${no_color}"
+        OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
+        echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
+
+        NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@\(^.*eureka.*\)http://.*:${PORT}@\1http://${CS_CONTAINER_GR_IP}:${PORT}@g"
+        echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
+
+        RESULT=`curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                   --header "Content-Type: application/json" \
+                   --header "Accept: application/json" \
+                   --header "X-Auth-Token: ${BEARER_TOKEN}" \
+                   --header "X-Auth-Project-Id: ${SPACE_ID}" \
+                   -d "{\"Environment\":[\"VCAP_SERVICES=${NEW_VCAP_SERVICES}\"],\"NumberInstances\": {}}" \
+                   "https://containers-api.ng.bluemix.net/v3/containers/groups/${MICROSERVICE}"`
+
+        if [ $RESULT -ge 400 ]; then
+          echo -e "${red}Result of curl: $RESULT ${no_color}"
+        else
+          echo -e "${green}Result of curl: $RESULT ${no_color}"
+        fi
+      done
+
+      echo -e "${label_color}# ----------------------------- #${no_color}"
+      echo -e "${label_color}# [END]: Updating microservices #${no_color}"
+      echo -e "${label_color}# ----------------------------- #${no_color}"
 
   - name: Active Deploy - Begin
     type: deployer

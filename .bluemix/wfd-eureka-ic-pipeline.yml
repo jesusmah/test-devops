@@ -28,6 +28,7 @@ stages:
         cp ${BUILD_TARGET} ${DOCKER_DIR}/app.jar
         ls -al $PWD
         echo "Gradle build complete."
+        
 - name: Build Docker Image
   inputs:
   - type: job
