@@ -5,7 +5,7 @@ In this window, you will be asked to specify the following properties for your t
 1. Specify a name for your toolchain that is unique among all toolchains on your Bluemix namespace DevOps section. \n\
 2. Click on the \"GitHub\" icon. This opens the GitHub settings. Please, give your desired name to each of the repos that will be cloned. \n\
 3. Click on the \"Delivery Pipeline\" icon. This opens the delivery pipeline settings: \n\
-&nbsp;&nbsp;&nbsp; * Specify the Bluemix domain for your apps' routes (by default: mybluemix.net). \n\
+&nbsp;1. Specify the Bluemix domain for your apps' routes (by default: mybluemix.net). \n\
   * Specify the build branch you would like your delivery pipelines to build the code from (by default: master). \n\
    * Specify a unique identifier which must make your apps' names __unique in Bluemix public__ (by default: toolchain's creation timestamp). \n\
 4. Click the Create button to complete the toolchain creation."
