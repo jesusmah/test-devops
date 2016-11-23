@@ -7,7 +7,7 @@ In this window, you will be asked to specify the following properties for your t
 3. Click on the \"Delivery Pipeline\" icon. This opens the delivery pipeline settings: \n\
  1. Specify the Bluemix domain for your apps' routes (by default: mybluemix.net). \n\
  2. Specify the build branch you would like your delivery pipelines to build the code from (by default: master). \n\
- 3. Specify a unique identifier which must make your apps' names *unique in Bluemix public* (by default: toolchain's creation timestamp). \n\
+ 3. Specify a unique identifier which must make your apps' names __unique in Bluemix public__ (by default: toolchain's creation timestamp). \n\
 3. Click the Create button to complete the toolchain creation."
 version: 0.1
 toolchain:
