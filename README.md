@@ -17,8 +17,8 @@ This repository contains the DevOps toolchain for managing and deploying the mic
  2. Click on the "GitHub" icon. This opens the GitHub settings. Please, give your desired name to each of the repos that will be cloned.
  3. Click on the "Delivery Pipeline" icon. This opens the delivery pipeline settings:
    * Specify the Bluemix domain for your apps' routes (by default: mybluemix.net).
-   * Specify the build branch you would like your delivery pipelines to build the code from (by default: master).
-   * Specify a unique identifier which must make your apps' names *unique in Bluemix public* (by default: toolchain's creation timestamp).
+    * Specify the build branch you would like your delivery pipelines to build the code from (by default: master).
+     * Specify a unique identifier which must make your apps' names *unique in Bluemix public* (by default: toolchain's creation timestamp).
 3. Click the Create button to complete the toolchain creation.
 4. After creating the toolchain, make sure to deploy the microservices in the following order:
  1. The Eureka server. To do this, execute the wfd-eureka-cf-ad delivery pipeline
