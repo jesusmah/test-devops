@@ -416,5 +416,5 @@ deploy:
     route-domain: "mybluemix.net"
     route-hostname: "mymenu"
     branch: "master"
-    unique-identifier: "unique-identifier"
+    unique-identifier: "{{timestamp}}"
     git-home: "IBMActiveDeploy-Toolchain"
