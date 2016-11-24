@@ -10,7 +10,7 @@ In this window, you will be asked to specify the following properties for your t
 \t - Specify a unique identifier which must make your apps' names __unique in Bluemix public__ (by default: toolchain's creation timestamp). \n\
 4. Click the Create button to complete the toolchain creation."
 version: 0.1
-image: data:image/svg+xml;base64,$file(arch2.svg,base64)
+image: data:image/svg+xml;base64,$file(arch.svg,base64)
 icon: data:image/svg+xml;base64,$file(icon.svg,base64)
 toolchain:
   name: "whats_for_dinner_IC_toolchain"
@@ -108,12 +108,12 @@ pipeline-wfd-eureka:
        DESIRED_INSTANCES: "1"
        CONCURRENT_VERSIONS: "1"
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        SERVICE_DISCOVERY_UPS: "eureka-service-discovery"
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        PORT: "8761"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-eureka.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-eureka.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -152,12 +152,12 @@ pipeline-wfd-config:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        CONFIG_SERVER_UPS: "config-server-ic"
        SERVICE_DISCOVERY_UPS: "eureka-service-discovery"
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-config.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-config.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -196,10 +196,10 @@ pipeline-wfd-appetizer:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-appetizer.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-appetizer.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -237,10 +237,10 @@ pipeline-wfd-entree:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-entree.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-entree.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -278,10 +278,10 @@ pipeline-wfd-dessert:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-dessert.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-dessert.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -319,10 +319,10 @@ pipeline-wfd-menu:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-menu.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-menu.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
@@ -401,10 +401,10 @@ pipeline-wfd-menu-ui:
        CONCURRENT_VERSIONS: "1"
        #AUTO_RECOVERY: "false" -- Commented out due to a bug declaring boolean variables
        CONTAINER_SIZE: "micro"
-       IGNORE_MAPPING_ROUTE: "yes"
+       IGNORE_MAPPING_ROUTE: null
        BRIDGE_APP: "container-bridge-app-{{deploy.parameters.unique-identifier}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-menu-ui.parameters.name}}"
+       ROUTE_HOSTNAME: "{{pipeline-wfd-menu-ui.parameters.name}}-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        DEBUG: null
