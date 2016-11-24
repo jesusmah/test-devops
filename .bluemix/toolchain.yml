@@ -10,6 +10,7 @@ In this window, you will be asked to specify the following properties for your t
 \t - Specify a unique identifier which must make your apps' names __unique in Bluemix public__ (by default: toolchain's creation timestamp). \n\
 4. Click the Create button to complete the toolchain creation."
 version: 0.1
+image: data:image/svg+xml;base64,$file(arch.svg,base64)
 toolchain:
   name: "whats_for_dinner_IC_toolchain"
 required:
@@ -84,7 +85,7 @@ git-wfd-menu-ui:
 pipeline-wfd-eureka:
   service_id: pipeline
   parameters:
-    name: "wfd-eureka-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-eureka-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-eureka-ic-pipeline.yml)
@@ -126,7 +127,7 @@ pipeline-wfd-eureka:
 pipeline-wfd-config:
   service_id: pipeline
   parameters:
-    name: "wfd-config-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-config-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-config-server-ic-pipeline.yml)
@@ -170,7 +171,7 @@ pipeline-wfd-config:
 pipeline-wfd-appetizer:
   service_id: pipeline
   parameters:
-    name: "wfd-appetizer-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-appetizer-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
@@ -211,7 +212,7 @@ pipeline-wfd-appetizer:
 pipeline-wfd-entree:
   service_id: pipeline
   parameters:
-    name: "wfd-entree-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-entree-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
@@ -252,7 +253,7 @@ pipeline-wfd-entree:
 pipeline-wfd-dessert:
   service_id: pipeline
   parameters:
-    name: "wfd-dessert-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-dessert-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
@@ -293,7 +294,7 @@ pipeline-wfd-dessert:
 pipeline-wfd-menu:
   service_id: pipeline
   parameters:
-    name: "wfd-menu-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-menu-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
@@ -334,7 +335,7 @@ pipeline-wfd-menu:
 pipeline-wfd-zuul:
   service_id: pipeline
   parameters:
-    name: "wfd-zuul-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-zuul-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
@@ -375,7 +376,7 @@ pipeline-wfd-zuul:
 pipeline-wfd-menu-ui:
   service_id: pipeline
   parameters:
-    name: "wfd-menu-ui-{{deploy.parameters.unique-identifier}}"
+    name: "wfd-menu-ui-ic-ad"
     ui-pipeline: true
     configuration:
       content: $file(wfd-ic-pipeline-template.yml)
