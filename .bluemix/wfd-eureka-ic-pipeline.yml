@@ -406,12 +406,9 @@ stages:
         echo "[INFO]: Updating Eureka url for microservice: $MICROSERVICE"
 
         MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
-        #echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
 
         OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
-        #echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
 
-        #echo -e "${red}Eureka location: $NEW_EUREKA_LOCATION ${no_color}"
         NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@http.*eureka\/@${NEW_EUREKA_LOCATION}@g"`
         echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
 

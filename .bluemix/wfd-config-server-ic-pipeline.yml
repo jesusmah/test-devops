@@ -194,6 +194,12 @@ stages:
   - name: CONFIG_SERVER_UPS
     value: ${CONFIG_SERVER_UPS}
     type: text
+  - name: CS_CONTAINER_GR_ID
+    value: ${CS_CONTAINER_GR_ID}
+    type: text
+  - name: CS_CONTAINER_GR_IP
+    value: ${CS_CONTAINER_GR_IP}
+    type: text
   jobs:
   - name: Deploy Container Group
     type: deployer
@@ -261,11 +267,39 @@ stages:
       echo -e "${green}Execution complete${no_label}"
 
       export NAME="${CONTAINER_NAME}_${BUILD_NUMBER}"
+      export CS_CONTAINER_GR_ID=`cf ic group list | grep $NAME | sed 's/ .*$//g'`
+      export CS_CONTAINER_GR_IP=`cf ic group inspect $CS_CONTAINER_GR_ID | grep private_ip_address | sed 's/.*: "\(.*\)".*$/\1/g'`
+
       echo "Value of NAME: ${NAME}"
+      echo "Config Server container group ID: ${CS_CONTAINER_GR_ID}"
+      echo "Config Server container group IP: ${CS_CONTAINER_GR_IP}"
 
       echo -e "${label_color}# ----------------------------- #${no_color}"
       echo -e "${label_color}# [END]: Deploy Container Group #${no_color}"
       echo -e "${label_color}# ----------------------------- #${no_color}"
+  - name: Deploy CUPS
+    type: deployer
+    target:
+      region_id: ${REGION}
+      organization: ${ORG}
+      space: ${SPACE}
+      application: ${NAME}
+    script: |-
+      #!/bin/bash
+
+      # ------ #
+      # Colors #
+      # ------ #
+      export green='\e[0;32m'
+      export red='\e[0;31m'
+      export label_color='\e[0;33m'
+      export no_color='\e[0m' # No Color
+
+      # -------------- #
+      # Set debug mode #
+      # -------------- #
+
+      if [[ -n ${DEBUG} ]]; then set -x ; fi
 
       echo -e "${label_color}# -------------------- #${no_color}"
       echo -e "${label_color}# [BEGIN]: Deploy CUPS #${no_color}"
@@ -273,21 +307,38 @@ stages:
 
       echo "Begining Config Server CUPS deployment"
 
-      CS_CONTAINER_GR_ID=`cf ic group list | grep $NAME | sed 's/ .*$//g'`
-      CS_CONTAINER_GR_IP=cf ic group inspect $CS_CONTAINER_GR_ID | grep private_ip_address | sed 's/.*: "\(.*\)".*$/\1/g'`
-
-      echo "Config Server container group ID: $CS_CONTAINER_GR_ID"
-      echo "Config Server container group IP: $CS_CONTAINER_GR_IP"
-
       if [ -z "$(cf services | grep ${CONFIG_SERVER_UPS})" ]; then
-        cf create-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}"
+        cf create-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://${CS_CONTAINER_GR_IP}:${PORT}/\"}"
       else
-        cf update-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://$CS_CONTAINER_GR_IP:${PORT}/\"}";
+        cf update-user-provided-service ${CONFIG_SERVER_UPS} -p "{\"uri\": \"http://${CS_CONTAINER_GR_IP}:${PORT}/\"}";
       fi
 
       echo -e "${label_color}# ------------------ #${no_color}"
       echo -e "${label_color}# [END]: Deploy CUPS #${no_color}"
       echo -e "${label_color}# ------------------ #${no_color}"
+  - name: Update Container Bridge App
+    type: deployer
+    target:
+      region_id: ${REGION}
+      organization: ${ORG}
+      space: ${SPACE}
+      application: ${NAME}
+    script: |
+      #!/bin/bash
+
+      # ------ #
+      # Colors #
+      # ------ #
+      export green='\e[0;32m'
+      export red='\e[0;31m'
+      export label_color='\e[0;33m'
+      export no_color='\e[0m' # No Color
+
+      # -------------- #
+      # Set debug mode #
+      # -------------- #
+
+      if [[ -n ${DEBUG} ]]; then set -x ; fi
 
       echo -e "${label_color}# -------------------------- #${no_color}"
       echo -e "${label_color}# [BEGIN]: Deploy Bridge App #${no_color}"
@@ -317,6 +368,24 @@ stages:
       echo -e "${label_color}# ------------------------ #${no_color}"
       echo -e "${label_color}# [END]: Deploy Bridge App #${no_color}"
       echo -e "${label_color}# ------------------------ #${no_color}"
+  - name: Update Microservices
+    type: deployer
+    extension_id: ibm.devops.services.pipeline.docker.deploy.ice
+    target:
+      region_id: ${REGION}
+      organization: ${ORG}
+      space: ${SPACE}
+    PORT: ${PORT}
+    CONTAINER_NAME: ${NAME}
+    DEPLOY_TYPE: simple
+    COMMAND: |-
+      #!/bin/bash
+
+      # -------------- #
+      # Set debug mode #
+      # -------------- #
+
+      if [[ -n ${DEBUG} ]]; then set -x ; fi
 
       echo -e "${label_color}# ------------------------------- #${no_color}"
       echo -e "${label_color}# [BEGIN]: Updating microservices #${no_color}"
@@ -326,32 +395,31 @@ stages:
       export PYTHONPATH=$EXT_DIR/utilities/:$PYTHONPATH
 
       export BEARER_TOKEN=`python - <<CODE
-        import python_utils
-        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
-        print(str(BEARER_TOKEN))
+      import python_utils
+      BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+      print(str(BEARER_TOKEN))
       CODE`
       export SPACE_ID=`python - <<CODE
-        import python_utils
-        BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
-        print(str(SPACE_GUID))
+      import python_utils
+      BEARER_TOKEN, SPACE_GUID = python_utils.load_cf_auth_info()
+      print(str(SPACE_GUID))
       CODE`
       # --------------------------------------------------------- #
 
       # Location of the new Eureka Server
       NEW_CS_LOCATION="http://${CS_CONTAINER_GR_IP}:${PORT}/"
 
+      # For each microservice, we need to update their VCAP_SERVICES so that they point to the new Eureka Server
       for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | grep -v ${APP_NAME} | sed 's/    .*$//g' | sed 's/^.*  //g'`
       do
         echo "[INFO]: Updating Config Server url for microservice: $MICROSERVICE"
 
         MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
-        echo "[INFO]: $MICROSERVICE container group id: $MICROSERVICE_CONTAINER_GR_ID"
 
         OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
-        echo "[INFO]:$MICROSERVICE old VCAP Services: $OLD_VCAP_SERVICES"
 
         NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@\(^.*eureka.*\)http://.*:${PORT}@\1http://${CS_CONTAINER_GR_IP}:${PORT}@g"
-        echo "[INFO]:$MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
+        echo "[INFO]: $MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
 
         RESULT=`curl -s -o /dev/null -w "%{http_code}" -X PATCH \
                    --header "Content-Type: application/json" \
@@ -371,7 +439,6 @@ stages:
       echo -e "${label_color}# ----------------------------- #${no_color}"
       echo -e "${label_color}# [END]: Updating microservices #${no_color}"
       echo -e "${label_color}# ----------------------------- #${no_color}"
-
   - name: Active Deploy - Begin
     type: deployer
     extension_id: ibm.devops.services.pipeline.devops.ad_start
