@@ -118,7 +118,7 @@ stages:
         # Copy any artifacts that will be needed for deployment and testing to $WORKSPACE    #
         ######################################################################################
         echo "IMAGE_NAME=${FULL_REPOSITORY_NAME}" >> $ARCHIVE_DIR/build.properties
-- name: Deploy
+- name: Deploy Microservice
   inputs:
   - type: job
     stage: Build Docker Image

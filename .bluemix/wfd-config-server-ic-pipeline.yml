@@ -117,7 +117,7 @@ stages:
         # Copy any artifacts that will be needed for deployment and testing to $WORKSPACE    #
         ######################################################################################
         echo "IMAGE_NAME=${FULL_REPOSITORY_NAME}" >> $ARCHIVE_DIR/build.properties
-- name: Deploy
+- name: Deploy Microservice
   inputs:
   - type: job
     stage: Build Docker Image
@@ -186,6 +186,9 @@ stages:
     value: ${UNIQUE_IDENTIFIER}
     type: text
   - name: BRIDGE_APP
+    value: ${BRIDGE_APP}
+    type: text
+  - name: BIND_TO
     value: ${BRIDGE_APP}
     type: text
   - name: APP_NAME
@@ -409,32 +412,39 @@ stages:
       # Location of the new Eureka Server
       NEW_CS_LOCATION="http://${CS_CONTAINER_GR_IP}:${PORT}/"
 
-      # For each microservice, we need to update their VCAP_SERVICES so that they point to the new Eureka Server
-      for MICROSERVICE in `cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | grep -v ${APP_NAME} | sed 's/    .*$//g' | sed 's/^.*  //g'`
-      do
-        echo "[INFO]: Updating Config Server url for microservice: $MICROSERVICE"
+      NUM_MICROSERVICES=$(cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | grep -v ${APP_NAME} | wc -l)
+      if [ $NUM_MICROSERVICES -ne 0 ]; then
+        # For each microservice, we need to update their VCAP_SERVICES so that they point to the new Eureka Server
+        MICROSERVICES=`cf ic group list | grep ${UNIQUE_IDENTIFIER} | grep -v eureka | grep -v ${APP_NAME} | sed 's/    .*$//g' | sed 's/^.*  //g'`
 
-        MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
+        for MICROSERVICE in `echo ${MICROSERVICES}`
+        do
+          echo "[INFO]: Updating Config Server url for microservice: $MICROSERVICE"
 
-        OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
+          MICROSERVICE_CONTAINER_GR_ID=`cf ic group list | grep $MICROSERVICE | sed 's/ .*$//g'`
 
-        NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@\(^.*eureka.*\)http://.*:${PORT}@\1http://${CS_CONTAINER_GR_IP}:${PORT}@g"
-        echo "[INFO]: $MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
+          OLD_VCAP_SERVICES=`cf ic group inspect $MICROSERVICE_CONTAINER_GR_ID | grep 'VCAP_SERVICES=' | sed 's/^.*VCAP_SERVICES=\(.*\)",.*$/\1/g'`
 
-        RESULT=`curl -s -o /dev/null -w "%{http_code}" -X PATCH \
-                   --header "Content-Type: application/json" \
-                   --header "Accept: application/json" \
-                   --header "X-Auth-Token: ${BEARER_TOKEN}" \
-                   --header "X-Auth-Project-Id: ${SPACE_ID}" \
-                   -d "{\"Environment\":[\"VCAP_SERVICES=${NEW_VCAP_SERVICES}\"],\"NumberInstances\": {}}" \
-                   "https://containers-api.ng.bluemix.net/v3/containers/groups/${MICROSERVICE}"`
+          NEW_VCAP_SERVICES=`echo $OLD_VCAP_SERVICES | sed "s@\(^.*eureka.*\)http://.*:${PORT}@\1http://${CS_CONTAINER_GR_IP}:${PORT}@g"`
+          echo "[INFO]: $MICROSERVICE new VCAP Services: $NEW_VCAP_SERVICES"
 
-        if [ $RESULT -ge 400 ]; then
-          echo -e "${red}Result of curl: $RESULT ${no_color}"
-        else
-          echo -e "${green}Result of curl: $RESULT ${no_color}"
-        fi
-      done
+          RESULT=`curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                      --header "Content-Type: application/json" \
+                      --header "Accept: application/json" \
+                      --header "X-Auth-Token: ${BEARER_TOKEN}" \
+                      --header "X-Auth-Project-Id: ${SPACE_ID}" \
+                      -d "{\"Environment\":[\"VCAP_SERVICES=${NEW_VCAP_SERVICES}\"],\"NumberInstances\": {}}" \
+                      "https://containers-api.ng.bluemix.net/v3/containers/groups/${MICROSERVICE}"`
+
+          if [ $RESULT -ge 400 ]; then
+            echo -e "${red}Result of curl: $RESULT ${no_color}"
+          else
+            echo -e "${green}Result of curl: $RESULT ${no_color}"
+          fi
+        done
+      else
+        echo -e "${green}[INFO]: There is no microservice to be updated ${no_color}"
+      fi
 
       echo -e "${label_color}# ----------------------------- #${no_color}"
       echo -e "${label_color}# [END]: Updating microservices #${no_color}"
