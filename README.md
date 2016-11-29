@@ -1,7 +1,8 @@
 ###### refarch-cloudnative-wfd-appetizer
 
-## refarch-cloudnative-wfd-devops
-DevOps repository for the cloud native reference architecture for the microservices workstream
+### Microservices Reference Application - What's For Dinner Container Version DevOps Toolchain
+
+This repository contains the DevOps toolchain for managing and deploying the Java microservices making up the What's For Dinner app to Bluemix in IBM Containers.
 
 [![Create wfd Deployment Toolchain](https://new-console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://new-console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jesusmah/test-devops)
 
