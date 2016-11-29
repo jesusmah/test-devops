@@ -1,4 +1,6 @@
-# refarch-cloudnative-wfd-devops
+###### refarch-cloudnative-wfd-appetizer
+
+## refarch-cloudnative-wfd-devops
 DevOps repository for the cloud native reference architecture for the microservices workstream
 
 [![Create wfd Deployment Toolchain](https://new-console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://new-console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jesusmah/test-devops)
