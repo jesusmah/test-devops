@@ -1,6 +1,6 @@
 ###### refarch-cloudnative-wfd-appetizer
 
-### Microservices Reference Application - What's For Dinner Container Version DevOps Toolchain
+## Microservices Reference Application - What's For Dinner Toolchain (IBM Containers)
 
 This repository contains the DevOps toolchain for managing and deploying the Java microservices making up the What's For Dinner app to Bluemix in IBM Containers.
 
