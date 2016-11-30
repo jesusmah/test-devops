@@ -12,17 +12,18 @@ In order to create a toolchain for the What's For Dinner Microservices Reference
 
 1. The "What is for dinner Toolchain" creation view will open.
 2. In this window, you will be asked to specify the following properties for your toolchain:
- 1. Specify a name for your toolchain that is unique among all toolchains on your Bluemix namespace DevOps section.
- 2. Click on the "GitHub" icon. This opens the GitHub settings. Please, give your desired name to each of the repos that will be cloned.
- 3. Click on the "Delivery Pipeline" icon. This opens the delivery pipeline settings:
-   * Specify the Bluemix domain for your apps' routes (by default: mybluemix.net).
-    * Specify the build branch you would like your delivery pipelines to build the code from (by default: master).
-     * Specify a unique identifier which must make your apps' names __unique in Bluemix public__ (by default: toolchain's creation timestamp).
+ 1. Specify a name for your toolchain that is __unique__ among all toolchains on your Bluemix namespace DevOps section.
+ 2. Click on the __GitHub__ icon. This opens the GitHub settings. Please, give your desired name to each of the repos that will be cloned.
+ 3. Click on the __Delivery Pipeline__ icon. This opens the delivery pipeline settings:
+   * Specify the Bluemix domain where your app will be hosted *(by default: mybluemix.net)*.
+    * Specify the build branch you would like your delivery pipelines to build the code from *(by default: master)*.
+     * Specify your app and APIs endpoints which must be __unique__ within Bluemix public *(by default: "mymenu" and "menu-apis" respectively)*.
+      * Specify a unique identifier which will be used to make the What's For Dinner microservices and their routing __unique within Bluemix public__ *(by default: toolchain's creation timestamp)*.
 3. Click the Create button to complete the toolchain creation.
-4. After creating the toolchain, make sure to deploy the microservices in the following order:
- 1. The Eureka server. To do this, execute the wfd-eureka-cf-ad delivery pipeline
- 2. The Config server, by running the wfd-config-cf-ad delivery pipeline
- 3. All other microservices, by executing their delivery pipelines
+4. After creating the toolchain, make sure to deploy the What's For Dinner microservices in the following order:
+ 1. The Eureka server, by running the wfd-eureka-ic-ad delivery pipeline.
+ 2. The Config server, by running the wfd-config-ic-ad delivery pipeline.
+ 3. All other microservices, by executing their delivery pipelines.
 
 ### Details
 
