@@ -47,12 +47,16 @@ All microservices depend on Eureka for service registration and discovery. This 
 
 Because of the need of the User Provided Services and the container bridge app, the Eureka and Config Server __Deploy Microservice__ delivery pipeline stages contain extra jobs and look like the following:
 
-                    ![Eureka pipeline](static/imgs/eureka.png?raw=true)
+<img src="static/imgs/eureka.png?raw=true" hspace="200">
 
-### Eureka & active deploy
+### Eureka & Active Deploy
 
-Active deploy switches from an old to a new version of an app by switching the route from an old version of an app to the new version of that app. Oftentimes this is fine, but in the case of Eureka there is a complication. Eureka keeps an in-memory database of all app that have registered with it. Any new version of the Eureka app will not immediately have the registrations the current version has, and until it does, its service cannot fully replace the service of the old version. This means that there will be some period of time in which Eureka's service will be degraded.
+Active deploy switches from an old to a new version of a microservice by switching the route from the old version to the new version of that microservice. Oftentimes this is fine, but in the case of Eureka there is a complication. Eureka keeps an in-memory database of all microservices that have registered with it. Any new version of the Eureka server will not immediately have the registrations the current version has, and until it does, its service cannot fully replace the service of the old version. This means that there will be some period of time in which Eureka's service will be degraded.
 
-Microservices start registering with Eureka as soon as they can access the Eureka server, which in the context of Active Deploy is the end of the rampup phase. In order to make the process of registering with a new Eureka as fast as possible, we make the rampup phase as short as possible: one second (1s). In doing this, the period of time in which the Eureka service is degraded is  minimized.
+After the deployment of the new version of the Eureka Server, the rest of the microservices' container groups are updated with a new value for their VCAP services containing the new Eureka Server location. As a result, an automated IBM Container mechanism will be triggered whereby as many new instances with the new VCAP services value as old instances will be spun up and once they are up and running the old instances will get shut down.
 
-By doing this, we have observed it to take anywhere from 50-80 seconds until the new Eureka contains the registrations of all microservices, and Eureka's service is fully restored.
+By doing this, we have observed it to take anywhere from 120-180 seconds until the new Eureka contains the registrations of all microservices, and Eureka's service is fully restored.
+
+### Delivery pipelines & public routes
+
+There is a limitation on this zero downtime microservices architecture approach introduced by the Bluemix Delivery Pipeline Service. The Bluemix Delivery Pipeline Service will map a public route to the microservice container group on its initial deployment and will need such route to be kept mapped to the microservice container group in order to red/black deploy a new version of the microservice.
