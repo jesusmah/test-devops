@@ -24,7 +24,7 @@ In order to create a toolchain for the What's For Dinner Microservices Reference
  2. The Config server, by running the wfd-config-cf-ad delivery pipeline
  3. All other microservices, by executing their delivery pipelines
 
-# Details
+### Details
 
 This toolchain contains a github clone tool, and a delivery pipeline for each of the microservices.
 The github clone tool creates a cloned repository for the microservice.
@@ -37,13 +37,13 @@ Each delivery pipeline consists of two stages:
  3. **Test New Version**. This job is empty by default. It can be populated with any required tests.
  4. **Active Deploy - Complete**. This job continues the active deployment for the microservice, and completes it.
 
-# Considerations
-## Order of deployment
+## Considerations
+### Order of deployment
 All microservices depend on Eureka for service registration and discovery. This is established by creating a service associated to the Eureka server that can be bound to the other microservices. This service is created the very first time the Eureka server is deployed, and it must exist before other services are deployed so they can bind it to them.
 
 Dynamic configuration is implemented using the Config server. The Config server is accessed by microservices by binding them to the service that is associated with the Config server. This service is created on the first deployment of the Config server, and therefor is required to exist before any of the other microservices are deployed.
 
-## Eureka & active deploy
+### Eureka & active deploy
 
 Active deploy switches from an old to a new version of an app by switching the route from an old version of an app to the new version of that app. Oftentimes this is fine, but in the case of Eureka there is a complication. Eureka keeps an in-memory database of all app that have registered with it. Any new version of the Eureka app will not immediately have the registrations the current version has, and until it does, its service cannot fully replace the service of the old version. This means that there will be some period of time in which Eureka's service will be degraded.
 
