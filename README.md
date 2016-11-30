@@ -29,14 +29,17 @@ In order to create a toolchain for the What's For Dinner Microservices Reference
 
 This toolchain contains a github clone tool, and a delivery pipeline for each of the microservices.
 The github clone tool creates a cloned repository for the microservice.
-Each delivery pipeline consists of two stages:
+Each delivery pipeline consists of three stages:
 
-1. Build. This stage has one job, which runs a gradle build of the microservice.
-2. Delivery Pipeline. This stage has 4 jobs:
- 1. **Deploy CF App**. This job deploys a new version of the microservice.
- 2. **Active Deploy - Begin**. This job creates an active deployment for the microservice, and advances this to the Test phase.
- 3. **Test New Version**. This job is empty by default. It can be populated with any required tests.
- 4. **Active Deploy - Complete**. This job continues the active deployment for the microservice, and completes it.
+1. __Build Java Projects__. This stage has only one job which runs a gradle build of the microservice.
+2. __Build Docker Image__. This stage has only one job which builds a Docker image from a Dockerfile and pushes it to your Bluemix private container image registry.
+3. __Deploy Microservice__. This stage has 4 jobs:
+ 1. **Deploy Container**. This job deploys the docker image for the new version of the microservice.
+ 2. **Active Deploy - Begin**. This job creates a new Active Deploy job to upgrade the microservice to a newer version. Traffic is routed to the new version of the microservice during the rampup phase and advances the Active Deploy job to the Test phase.
+ 3. **Test**. This job is empty by default. It can be edited to perform any required tests.
+ 4. **Active Deploy - Complete**. This job advances the Active Deploy job to its rampdown phase, where the old microservice version will be removed and the Active Deploy job will be marked completed if the previous test phase succeeded. Otherwise, the upgrade will be rolled back and the Active Deploy job marked as failed.
+
+    ![Common pipeline](static/imgs/common-ic-pipeline.png?raw=true)
 
 ## Considerations
 ### Order of deployment
