@@ -43,7 +43,7 @@ Each delivery pipeline consists of three stages:
 
 ## Considerations
 ### Order of deployment
-All microservices depend on Eureka for service registration and discovery. This is established by creating a service associated to the Eureka server that can be bound to the other microservices. This service is created the very first time the Eureka server is deployed, and it must exist before other services are deployed so they can bind it to them.
+All microservices depend on Eureka for service registration and discovery. This is established by creating a User Provided Service (UPS) associated to the Eureka server that will hold Eureka parameters needed by the rest of the microservices such as its url. This service is created the very first time the Eureka server is deployed and it must exist before other microservices are deployed. When the rest of the microservices are deployed, they will bind to the Eureka UPS so that they can access Eureka parameters through their VCAP Services. Unfortunately, UPS and containers do not work together as expected. This is worked around by creating a [container bridge app](https://console.ng.bluemix.net/docs/containers/container_troubleshoot.html#ts_bridge_app) between the UPS and the container. 
 
 Dynamic configuration is implemented using the Config server. The Config server is accessed by microservices by binding them to the service that is associated with the Config server. This service is created on the first deployment of the Config server, and therefor is required to exist before any of the other microservices are deployed.
 
