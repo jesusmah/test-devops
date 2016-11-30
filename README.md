@@ -39,7 +39,7 @@ Each delivery pipeline consists of three stages:
  3. **Test**. This job is empty by default. It can be edited to perform any required tests.
  4. **Active Deploy - Complete**. This job advances the Active Deploy job to its rampdown phase, where the old microservice version will be removed and the Active Deploy job will be marked completed if the previous test phase succeeded. Otherwise, the upgrade will be rolled back and the Active Deploy job marked as failed.
 
-    ![Common pipeline](static/imgs/common-ic-pipeline.png?raw=true)
+![Common pipeline](static/imgs/common-ic-pipeline.png?raw=true)
 
 ## Considerations
 ### Order of deployment
