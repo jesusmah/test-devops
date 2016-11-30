@@ -43,9 +43,11 @@ Each delivery pipeline consists of three stages:
 
 ## Considerations
 ### Order of deployment
-All microservices depend on Eureka for service registration and discovery. This is established by creating a User Provided Service (UPS) associated to the Eureka server that will hold Eureka parameters needed by the rest of the microservices such as its url. This service is created the very first time the Eureka server is deployed and it must exist before other microservices are deployed. When the rest of the microservices are deployed, they will bind to the Eureka UPS so that they can access Eureka parameters through their VCAP Services. Unfortunately, UPS and containers do not work together as expected. This is worked around by creating a [container bridge app](https://console.ng.bluemix.net/docs/containers/container_troubleshoot.html#ts_bridge_app) between the UPS and the container. 
+All microservices depend on Eureka for service registration and discovery. This is established by creating a User Provided Service (UPS) associated to the Eureka server that will hold Eureka parameters needed by the rest of the microservices such as its url. This service is created the very first time the Eureka server is deployed and it must exist before other microservices are deployed. When the rest of the microservices are deployed, they will bind to the Eureka UPS so that they can access Eureka parameters through their VCAP Services. Unfortunately, UPS and containers do not work together as expected. This is worked around by creating a [container bridge app](https://console.ng.bluemix.net/docs/containers/container_troubleshoot.html#ts_bridge_app) between the UPS and the container. Likewise, dynamic configuration is implemented using the Config server whose location need to known by the rest of the microservices during their deployment. This is done, again, by creating another UPS which is associated to the Config Server and bound to the container bridge app.
 
-Dynamic configuration is implemented using the Config server. The Config server is accessed by microservices by binding them to the service that is associated with the Config server. This service is created on the first deployment of the Config server, and therefor is required to exist before any of the other microservices are deployed.
+Because of the need of the User Provided Services and the container bridge app, the Eureka and Config Server __Deploy Microservice__ delivery pipeline stages contain extra jobs and look like the following:
+
+                  ![Eureka pipeline](static/imgs/eureka.png?raw=true)
 
 ### Eureka & active deploy
 
