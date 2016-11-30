@@ -15,10 +15,10 @@ In order to create a toolchain for the What's For Dinner Microservices Reference
  1. Specify a name for your toolchain that is __unique__ among all toolchains on your Bluemix namespace DevOps section.
  2. Click on the __GitHub__ icon. This opens the GitHub settings. Please, give your desired name to each of the repos that will be cloned.
  3. Click on the __Delivery Pipeline__ icon. This opens the delivery pipeline settings:
-   * Specify the Bluemix domain where your app will be hosted *(by default: mybluemix.net)*.
-    * Specify the build branch you would like your delivery pipelines to build the code from *(by default: master)*.
-     * Specify your app and APIs endpoints which must be __unique__ within Bluemix public *(by default: "mymenu" and "menu-apis" respectively)*.
-      * Specify a unique identifier which will be used to make the What's For Dinner microservices and their routing __unique within Bluemix public__ *(by default: toolchain's creation timestamp)*.
+   * Specify the __Bluemix domain__ where your app will be hosted *(by default: mybluemix.net)*.
+    * Specify the __build branch__ you would like your delivery pipelines to build the code from *(by default: master)*.
+     * Specify your __app and APIs endpoints__ which must be __unique__ within Bluemix public *(by default: "mymenu" and "menu-apis" respectively)*.
+      * Specify a __unique identifier__ which will be used to make the What's For Dinner microservices and their routing __unique within Bluemix public__ *(by default: toolchain's creation timestamp)*.
 3. Click the Create button to complete the toolchain creation.
 4. After creating the toolchain, make sure to deploy the What's For Dinner microservices in the following order:
  1. The Eureka server, by running the wfd-eureka-ic-ad delivery pipeline.
