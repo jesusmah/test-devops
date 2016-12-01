@@ -65,7 +65,7 @@ stages:
     value: ${ROUTE_HOSTNAME}
     type: text
   - name: NAME
-    value: null
+    value: ${NAME}
     type: text
   - name: RAMPDOWN_DURATION
     value: ${RAMPDOWN_DURATION}
@@ -80,7 +80,7 @@ stages:
       region_id: ${REGION}
       organization: ${ORG}
       space: ${SPACE}
-      application: ${APP_NAME}
+      application: ${NAME}
     script: |-
       #!/bin/bash
 
