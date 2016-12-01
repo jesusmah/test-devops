@@ -87,7 +87,7 @@ git-wfd-menu-ui:
 pipeline-wfd-eureka-cf:
   service_id: pipeline
   parameters:
-    name: "wfd-eureka-cf-ad"
+    name: "1. Eureka CF"
     ui-pipeline: true
     configuration:
       content: $file(wfd_eureka_cf_pipeline.yml)
@@ -101,12 +101,12 @@ pipeline-wfd-eureka-cf:
        ORG: "{{deploy.parameters.deploy-organization}}"
        SPACE: "{{deploy.parameters.deploy-space}}"
        ROUTE_DOMAIN: "{{deploy.parameters.route-domain}}"
-       ROUTE_HOSTNAME: "{{pipeline-wfd-eureka-cf.parameters.name}}-{{deploy.parameters.unique-identifier}}"
+       ROUTE_HOSTNAME: "wfd-eureka-cf-ad-{{deploy.parameters.unique-identifier}}"
        TEST_RESULT_FOR_AD: "1"
        GROUP_SIZE: "1"
        CONCURRENT_VERSIONS: "1"
        DEBUG: null
-       APP_NAME: "{{pipeline-wfd-eureka-cf.parameters.name}}-{{deploy.parameters.unique-identifier}}"
+       APP_NAME: "wfd-eureka-cf-ad-{{deploy.parameters.unique-identifier}}"
        SERVICE_DISCOVERY_UPS: "eureka-service-discovery"
        RAMPDOWN_DURATION: "1s"
        RAMPUP_DURATION: "1s"
