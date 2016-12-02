@@ -8,7 +8,7 @@ This repository contains the DevOps toolchain for managing and deploying the Jav
 
 In order to create a toolchain for the What's For Dinner Microservices Reference Application, please click below on the __Create toolchain__ button and follow the instructions.
 
-[![Create wfd Deployment Toolchain](https://new-console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://new-console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jesusmah/test-devops)
+[![Create wfd Deployment Toolchain](https://new-console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://new-console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/ibm-cloud-architecture/refarch-cloudnative-wfd-devops-containers.git)
 
 1. The "What is for dinner Toolchain" creation view will open.
 2. In this window, you will be asked to specify the following properties for your toolchain:
@@ -21,8 +21,8 @@ In order to create a toolchain for the What's For Dinner Microservices Reference
       * Specify a __unique identifier__ which will be used to make the What's For Dinner microservices and their routing __unique within Bluemix public__ *(by default: toolchain's creation timestamp)*.
 3. Click the Create button to complete the toolchain creation.
 4. After creating the toolchain, make sure to deploy the What's For Dinner microservices in the following order:
- 1. The Eureka server, by running the wfd-eureka-ic-ad delivery pipeline.
- 2. The Config server, by running the wfd-config-ic-ad delivery pipeline.
+ 1. The Eureka server, by running the Eureka IC delivery pipeline.
+ 2. The Config server, by running the Config Server IC delivery pipeline.
  3. All other microservices, by executing their delivery pipelines.
 
 ### Details
@@ -45,9 +45,9 @@ Each delivery pipeline consists of three stages:
 ### Order of deployment
 All microservices depend on Eureka for service registration and discovery. This is established by creating a User Provided Service (UPS) associated to the Eureka server that will hold Eureka parameters needed by the rest of the microservices such as its url. This service is created the very first time the Eureka server is deployed and it must exist before other microservices are deployed. When the rest of the microservices are deployed, they will bind to the Eureka UPS so that they can access Eureka parameters through their VCAP Services. Unfortunately, UPS and containers do not work together as expected. This is worked around by creating a [container bridge app](https://console.ng.bluemix.net/docs/containers/container_troubleshoot.html#ts_bridge_app) between the UPS and the container. Likewise, dynamic configuration is implemented using the Config server whose location need to known by the rest of the microservices during their deployment. This is done, again, by creating another UPS which is associated to the Config Server and bound to the container bridge app.
 
-Because of the need of the User Provided Services and the container bridge app, the Eureka and Config Server __Deploy Microservice__ delivery pipeline stages contain extra jobs and look like the following:
+Because of the need of the User Provided Services and the container bridge app, the Eureka and Config Server __Deploy Microservice__ delivery pipeline stage contain extra jobs and look like the following:
 
-<img src="static/imgs/eureka.png?raw=true" hspace="200">
+<img src="static/imgs/eureka.png?raw=true" hspace="250">
 
 ### Eureka & Active Deploy
 
@@ -60,3 +60,7 @@ By doing this, we have observed it to take anywhere from 120-180 seconds until t
 ### Delivery pipelines & public routes
 
 There is a limitation on this zero downtime microservices architecture approach introduced by the Bluemix Delivery Pipeline Service. The Bluemix Delivery Pipeline Service will map a public route to the microservice container group on its initial deployment and will need such route to be kept mapped to the microservice container group in order to red/black deploy a new version of the microservice.
+
+### Multiple What's For Dinner apps
+
+There is a limitation on the number of What's For Dinner apps you can deploy onto the same space to one. The reason for this is that the UPS created will be called likewise so then the delivery pipelines from the different What's For Dinner apps will overwrite each other's values. Hence there is a limitation of one What's For Dinner app per Bluemix Space.
