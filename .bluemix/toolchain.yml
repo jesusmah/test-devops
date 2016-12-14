@@ -440,5 +440,5 @@ deploy:
     menu-endpoint: "mymenu"
     menu-apis-endpoint: "menu-apis"
     branch: "master"
-    unique-identifier: "{{user}}"
+    unique-identifier: "{{timestamp}}"
     git-home: "Osthanes"
